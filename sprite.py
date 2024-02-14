@@ -36,3 +36,14 @@ class Sprite():
                 (Sprite.sprite_data, "2f 2f 1f", "in_position", "in_size", "in_rotation"),
             ]
         )
+
+    def inBounds(self, x, y):
+        if x > self.pos[0] - self.size[0]/2 and \
+            x < self.pos[0] + self.size[0]/2 and \
+            y > self.pos[1] - self.size[1]/2 and \
+            y < self.pos[1] + self.size[1]/2:
+                
+            return True
+        else:
+            return False
+             

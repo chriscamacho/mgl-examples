@@ -22,6 +22,8 @@ class Main(Config):
         super().__init__(**kwargs)
         
         num_sprites = 64
+        self.mousex = 0
+        self.mousey = 0
         
         textures = []
         textures.append(self.load_texture_2d("crate.png"))
@@ -42,7 +44,7 @@ class Main(Config):
             s.tex = i % 4
             if s.tex == 2:
                 s.size = (s.size[0] * 2, s.size[1] * 2)
-                s.tint = (1,0,0,0.4)
+                s.tint = (1,0,0,0.6)
             self.sprites.append(s)
               
         
@@ -61,7 +63,7 @@ class Main(Config):
                
         for s in self.sprites:
             
-            s.pos_ang = s.pos_ang + 0.01
+            s.pos_ang = s.pos_ang + 0.002
             s. pos = ( width/2 + math.cos(s.pos_ang*3)*width/3,
                         height/2 + math.sin(s.pos_ang)*height/3)
             
@@ -70,9 +72,17 @@ class Main(Config):
                 
             if s.tex == 1:
                 s.rot = math.cos(s.pos_ang*3)*45
-                
+            
+            if s.inBounds(self.mousex, self.mousey):
+                s.tint = (1,0,0,s.tint[3])
+            else:
+                s.tint = (1,1,1,s.tint[3])
             
             s.render()
+    
+    def mouse_position_event(self, x, y, dx, dy):
+        self.mousex = x
+        self.mousey = y
 
 if __name__ == "__main__":
     Main.run()
