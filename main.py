@@ -42,20 +42,19 @@ class Main(Config):
         for i in range(num_sprites):
             a = a + (2*math.pi / num_sprites)
             s = Sprite()
-                
+            
+            s.pos_ang = a       # added instance variables
+            s.dragging = False
+            s.offsetx = 0
+            s.offsety = 0
+
             s.tex = i % 4
             if s.tex == 2:
                 s.size = (s.size[0] * 2, s.size[1] * 2)
                 s.tint = (1,0,0,0.6)
             s. pos = ( width/2 + math.cos(s.pos_ang*3)*width/3,
                 height/2 + math.sin(s.pos_ang)*height/3)
-                
-                        
-            s.pos_ang = a       # added instance variables
-            s.dragging = False
-            s.offsetx = 0
-            s.offsety = 0
-            
+
             self.sprites.append(s)
               
         
