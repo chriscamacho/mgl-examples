@@ -55,6 +55,8 @@ class Main(Config):
             s.offsety = 0
 
             s.tex = i % 4
+            if s.tex == 0:
+                s.rot = 45
             if s.tex == 2:
                 s.size = (s.size[0] * 2, s.size[1] * 2)
                 s.tint = (1,0,0,0.6)
@@ -106,10 +108,11 @@ class Main(Config):
 # ----------------------------------------------------------------------
 #       event handling
 # ----------------------------------------------------------------------
-
+    # update window size for scale_mouse
     def resize(self, x, y):
         self.window_size = (x,y)
-        
+    
+    # fbo never seems to resize, even when window resizes
     def scale_mouse(self, x, y):
         width, height = self.window_size
         fbo_width, fbo_height = self.ctx.fbo.size
