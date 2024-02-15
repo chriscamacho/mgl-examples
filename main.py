@@ -11,10 +11,13 @@ per sprite
 import math
 
 import moderngl
+from moderngl_window.context.base.window import MouseButtons
 from config import Config
 
 from pyrr import Matrix44
 from sprite import Sprite
+
+
 
 class Main(Config):
 
@@ -73,9 +76,10 @@ class Main(Config):
         Sprite.program["projection"].write(projection)
                
         for s in self.sprites:
+            s.pos_ang = s.pos_ang + 0.002 # keep in step if reset
             # only move about if never dragged
             if s.offsetx == 0 and s.offsety == 0:
-                s.pos_ang = s.pos_ang + 0.002
+                
                 s. pos = ( width/2 + math.cos(s.pos_ang*3)*width/3,
                             height/2 + math.sin(s.pos_ang)*height/3)
                 
@@ -116,22 +120,24 @@ class Main(Config):
         
     # start dragging any under mouse
     def mouse_press_event(self, x, y, button):
-        if self.mousePressed: return
-        for s in self.sprites:
-            if s.inBounds(self.mousex, self.mousey):
-                s.dragging = True
-                s.offsetx = s.pos[0] - self.mousex
-                s.offsety = s.pos[1] - self.mousey
-                
-            else:
-                s.dragging = False
-        self.mousePressed = True
+        if button == MouseButtons.left:
+            if self.mousePressed: return
+            for s in self.sprites:
+                if s.inBounds(self.mousex, self.mousey):
+                    s.dragging = True
+                    s.offsetx = s.pos[0] - self.mousex
+                    s.offsety = s.pos[1] - self.mousey
+                    
+                else:
+                    s.dragging = False
+            self.mousePressed = True
 
     # stop dragging
     def mouse_release_event(self, x: int, y: int, button: int):
-        for s in self.sprites:
-            s.dragging = False
-        self.mousePressed = False
+        if button == MouseButtons.left:
+            for s in self.sprites:
+                s.dragging = False
+            self.mousePressed = False
 
 if __name__ == "__main__":
     Main.run()

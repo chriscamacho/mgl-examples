@@ -34,6 +34,7 @@ environment as it will self activate.
 (Not tested on systemdOS, but presumably it will work)
 
 (Windows)
+
 as above but venv activation and pip different
 ```
 ./venv/Scritps/activate.ps1
