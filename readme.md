@@ -7,7 +7,10 @@ one sprite at a time so that individual properties like texture and tint
 can be set per sprite.
 
 * each sprite has its own size, tint and texture
+* textures are using a TexutureArray a vertical strip
 * demonstrates mouse dragging
+* a dragged sprite can be rotate and sized with mouse wheel
+and A & Z keys
 * script recognises when not run in a virtual environment and self activates
 
 

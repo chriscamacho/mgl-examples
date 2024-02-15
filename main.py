@@ -134,7 +134,6 @@ class Main(Config):
                 self.leftCtr = True
     
     def mouse_scroll_event(self, x_offset: float, y_offset: float):
-        #print("Mouse wheel:", x_offset, y_offset)
         for s in self.sprites:
             if s.inBounds(self.mousex, self.mousey):
                 if self.leftSft and not self.leftCtr:
