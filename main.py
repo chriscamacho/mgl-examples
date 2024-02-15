@@ -21,6 +21,9 @@ from sprite import Sprite
 
 class Main(Config):
 
+# ----------------------------------------------------------------------
+#       initialisation
+# ----------------------------------------------------------------------
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         
@@ -61,7 +64,9 @@ class Main(Config):
             self.sprites.append(s)
               
         
-
+# ----------------------------------------------------------------------
+#       main render event
+# ----------------------------------------------------------------------
     def render(self, time, frame_time):
         self.ctx.clear(0.1,0.2,0.4)
         self.ctx.enable(moderngl.BLEND)
@@ -97,6 +102,9 @@ class Main(Config):
             
             s.render()
     
+# ----------------------------------------------------------------------
+#       event handling
+# ----------------------------------------------------------------------
     def key_event(self, key, action, modifiers):
         if action == self.wnd.keys.ACTION_PRESS:
             if key == self.wnd.keys.SPACE:
