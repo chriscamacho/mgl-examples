@@ -1,5 +1,4 @@
-# H1
-mgl-sprites
+# mgl-sprites
 
 This example is based on the geometry shader example, this reduces it to
 one sprite at a time so that individual properties like texture and tint
@@ -12,8 +11,7 @@ can be set per sprite.
 
 Enjoy!
 
-# H2
-Initial set up
+## Initial set up
 
 (Linux)
 ```
