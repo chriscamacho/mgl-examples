@@ -128,13 +128,9 @@ class Main(Config):
                     s.offsetx = 0
                     s.offsety = 0
 
-            # no define for this
-            SHIFT_ONLY = 65505
-            CTRL_ONLY = 65507
-
-            if key == SHIFT_ONLY:
+            if key == self.wnd.keys.A:
                 self.leftSft = True
-            if key == CTRL_ONLY:
+            if key == self.wnd.keys.Z:
                 self.leftCtr = True
     
     def mouse_scroll_event(self, x_offset: float, y_offset: float):
