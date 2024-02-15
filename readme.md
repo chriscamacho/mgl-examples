@@ -1,5 +1,7 @@
 # mgl-sprites
 
+![screenshot](https://github.com/chriscamacho/mgl-sprites/raw/main/Screenshot_2024-02-15_05-52-49.png "Screenshot")
+
 This example is based on the geometry shader example, this reduces it to
 one sprite at a time so that individual properties like texture and tint
 can be set per sprite.
