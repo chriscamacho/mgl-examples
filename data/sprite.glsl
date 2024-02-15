@@ -1,7 +1,5 @@
 #version 330
 
-const int MAX_TX = 16;
-
 /*--------------------------------------------------------------------*/
 #if defined VERTEX_SHADER
 /*--------------------------------------------------------------------*/
@@ -13,7 +11,6 @@ in float in_rotation;
 
 out vec2 size;
 out float rotation;
-
 
 void main() {
     // We just pass the values unmodified to the geometry shader

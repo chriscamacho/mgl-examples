@@ -34,11 +34,6 @@ class Main(Config):
         self.leftSft = False
         self.leftCtr = False
         
-        #textures = []
-        #textures.append(self.load_texture_2d("crate.png"))
-        #textures.append(self.load_texture_2d("checked.png"))
-        #textures.append(self.load_texture_2d("steel.png"))
-        #textures.append(self.load_texture_2d("brick.png"))
         textures = self.load_texture_array(
             'atlas.png', layers=4, mipmap=True, anisotrpy=8.0)
         
