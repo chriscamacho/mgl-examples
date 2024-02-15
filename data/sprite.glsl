@@ -93,9 +93,10 @@ void main() {
 #elif defined FRAGMENT_SHADER
 /*--------------------------------------------------------------------*/
 
-uniform sampler2D sprite_texture;
-uniform vec4 in_tint;
+uniform sampler2DArray texture0;
 
+uniform vec4 in_tint;
+uniform int tex;
 
 in vec2 uv;
 
@@ -103,7 +104,7 @@ out vec4 fragColor;
 
 void main() {
     
-    fragColor = texture(sprite_texture, uv) * in_tint;
+    fragColor = texture(texture0, vec3(uv, tex)) * in_tint;
 
 }
 

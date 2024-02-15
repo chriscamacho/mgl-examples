@@ -31,12 +31,16 @@ class Main(Config):
         self.mousex = 0
         self.mousey = 0
         self.mousePressed = False
+        self.leftSft = False
+        self.leftCtr = False
         
-        textures = []
-        textures.append(self.load_texture_2d("crate.png"))
-        textures.append(self.load_texture_2d("checked.png"))
-        textures.append(self.load_texture_2d("steel.png"))
-        textures.append(self.load_texture_2d("brick.png"))
+        #textures = []
+        #textures.append(self.load_texture_2d("crate.png"))
+        #textures.append(self.load_texture_2d("checked.png"))
+        #textures.append(self.load_texture_2d("steel.png"))
+        #textures.append(self.load_texture_2d("brick.png"))
+        textures = self.load_texture_array(
+            'atlas.png', layers=4, mipmap=True, anisotrpy=8.0)
         
         Sprite.load_textures(self, textures)
 
@@ -120,13 +124,35 @@ class Main(Config):
         self.mousey = y / (height /fbo_height )
 
     def key_event(self, key, action, modifiers):
+        self.leftSft = False
+        self.leftCtr = False
         if action == self.wnd.keys.ACTION_PRESS:
             if key == self.wnd.keys.SPACE:
                 # reset all to never dragged
                 for s in self.sprites:
                     s.offsetx = 0
                     s.offsety = 0
-            
+
+            # no define for this
+            SHIFT_ONLY = 65505
+            CTRL_ONLY = 65507
+
+            if key == SHIFT_ONLY:
+                self.leftSft = True
+            if key == CTRL_ONLY:
+                self.leftCtr = True
+    
+    def mouse_scroll_event(self, x_offset: float, y_offset: float):
+        #print("Mouse wheel:", x_offset, y_offset)
+        for s in self.sprites:
+            if s.inBounds(self.mousex, self.mousey):
+                if self.leftSft and not self.leftCtr:
+                    s.size = (s.size[0] + y_offset, s.size[1]) 
+                if not self.leftSft and self.leftCtr:
+                    s.size = (s.size[0], s.size[1] + y_offset)
+                if not self.leftSft and not self.leftCtr:
+                    s.rot += y_offset
+
     # record mouse position
     def mouse_position_event(self, x, y, dx, dy):
         self.scale_mouse(x,y)

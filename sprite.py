@@ -14,9 +14,9 @@ class Sprite():
     def render(self):
         self.sprite_data.write(array("f", [self.pos[0], self.pos[1], 
                                             self.size[0], self.size[1], self.rot ]))
-        self.program["sprite_texture"] = self.tex
+        self.program["tex"] = self.tex
         self.program["in_tint"] = self.tint
-        Sprite.texture[self.tex].use(self.tex)
+
         Sprite.vao.render(mode=POINTS, vertices=1)
         
     def load_textures(main, textures):
@@ -25,9 +25,8 @@ class Sprite():
         
         Sprite.texture = textures
         
-        # bind the textures to the first n texture units
-        for i, t in enumerate(Sprite.texture):
-            t.use(location=i)
+        Sprite.texture.use(location = 0)
+        Sprite.program['texture0'].value = 0
         
         # while we're at it set up the geom buffer
         Sprite.sprite_data_size = 5 * 4  # 5 32 bit floats
