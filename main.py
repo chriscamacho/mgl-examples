@@ -67,6 +67,7 @@ class Main(Config):
 # ----------------------------------------------------------------------
 #       main render event
 # ----------------------------------------------------------------------
+        
     def render(self, time, frame_time):
         self.ctx.clear(0.1,0.2,0.4)
         self.ctx.enable(moderngl.BLEND)
@@ -105,6 +106,16 @@ class Main(Config):
 # ----------------------------------------------------------------------
 #       event handling
 # ----------------------------------------------------------------------
+
+    def resize(self, x, y):
+        self.window_size = (x,y)
+        
+    def scale_mouse(self, x, y):
+        width, height = self.window_size
+        fbo_width, fbo_height = self.ctx.fbo.size
+        self.mousex = x / (width / fbo_width )
+        self.mousey = y / (height /fbo_height )
+
     def key_event(self, key, action, modifiers):
         if action == self.wnd.keys.ACTION_PRESS:
             if key == self.wnd.keys.SPACE:
@@ -115,13 +126,11 @@ class Main(Config):
             
     # record mouse position
     def mouse_position_event(self, x, y, dx, dy):
-        self.mousex = x
-        self.mousey = y
+        self.scale_mouse(x,y)
     
     # move any draggies
     def mouse_drag_event(self, x, y, dx, dy):
-        self.mousex = x
-        self.mousey = y
+        self.scale_mouse(x,y)
         for s in self.sprites:
             if s.dragging:
                 s.pos = (self.mousex + s.offsetx, self.mousey + s.offsety)       
