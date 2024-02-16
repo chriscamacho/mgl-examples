@@ -1,5 +1,5 @@
 from array import array
-from moderngl import LINE_STRIP
+from moderngl import LINE_STRIP_ADJACENCY
 from math import radians, cos, sin
 from pyrr import Matrix44, Vector3
 import numpy as np
@@ -14,18 +14,14 @@ class Spline():
 
         
     def render(self, ctx):
-        #point_data_size = 2 * 4  # 2 32 bit floats
-        #Spline.point_data = ctx.buffer(reserve=(_STEPS * self.point_data_size))
-        #Spline.vao = ctx.vertex_array(
-        #    Spline.program,
-        #    [
-        #        (Spline.point_data, "2f", "in_vert"),
-        #    ]
-        #)
+        self.program["linewidth"].value = 4
+        self.program["antialias"].value = 2
+        self.program["miter_limit"].value = 2
+        self.program["color"].value = self.tint
         self.generate_spline()
         
-        Spline.program["line_colour"] = self.tint
-        Spline.vao.render(mode=LINE_STRIP)
+
+        Spline.vao.render(mode=LINE_STRIP_ADJACENCY)
 
     def generate_spline(self):
         
@@ -50,7 +46,7 @@ class Spline():
         
     def load_program(main):
         
-        Spline.program = main.load_program("spline.glsl")
+        Spline.program = main.load_program("rich_lines.glsl")
 
         # while we're at it set up the geom buffer
         Spline.point_data_size = _STEPS * 2 * 4  # 2 32 bit floats per step
@@ -58,7 +54,7 @@ class Spline():
         Spline.vao = main.ctx.vertex_array(
             Spline.program,
             [
-                (Spline.point_data, "2f", "in_vert"),
+                (Spline.point_data, "2f", "position"),
             ]
         )
         
