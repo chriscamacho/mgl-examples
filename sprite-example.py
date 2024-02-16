@@ -17,7 +17,7 @@ from config import Config
 from pyrr import Matrix44
 from sprite import Sprite
 
-
+import numpy as np
 
 class Main(Config):
 
@@ -43,6 +43,7 @@ class Main(Config):
         
         # create a list of sprites giving them an initial position
         self.sprites = []
+
         a = 0
         for i in range(num_sprites):
             a = a + (2*math.pi / num_sprites)
@@ -63,7 +64,7 @@ class Main(Config):
                 height/2 + math.sin(s.pos_ang)*height/3)
 
             self.sprites.append(s)
-              
+
         
 # ----------------------------------------------------------------------
 #       main render event
