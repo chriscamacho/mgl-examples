@@ -4,7 +4,7 @@ from math import radians, cos, sin
 from pyrr import Matrix44, Vector3
 import numpy as np
 
-_STEPS = 8
+_STEPS = 64
 
 class Spline():
     
@@ -16,7 +16,7 @@ class Spline():
     def render(self, ctx):
         self.program["linewidth"].value = 4
         self.program["antialias"].value = 2
-        self.program["miter_limit"].value = 2
+        self.program["miter_limit"].value = -1
         self.program["color"].value = self.tint
         self.generate_spline()
         
@@ -38,10 +38,11 @@ class Spline():
         b1 = 3 * t * (1 - t) ** 2
         b2 = 3 * t ** 2 * (1 - t)
         b3 = t ** 3
-
+        Spline.point_data.write(array("f",self.start))
+        Spline.point_data.write(array("f",self.end),(_STEPS+2)*8)
         for i in range(_STEPS):
             point = np.sum(points * np.array([b0[i], b1[i], b2[i], b3[i]]).reshape(-1, 1), axis=0)
-            Spline.point_data.write(array("f", point),i*8)
+            Spline.point_data.write(array("f", point),(i+1)*8)
             
         
     def load_program(main):
@@ -49,7 +50,7 @@ class Spline():
         Spline.program = main.load_program("rich_lines.glsl")
 
         # while we're at it set up the geom buffer
-        Spline.point_data_size = _STEPS * 2 * 4  # 2 32 bit floats per step
+        Spline.point_data_size = (_STEPS+3) * 2 * 4  # 2 32 bit floats per step
         Spline.point_data = main.ctx.buffer(reserve=Spline.point_data_size)  # Capacity for 1 spline
         Spline.vao = main.ctx.vertex_array(
             Spline.program,

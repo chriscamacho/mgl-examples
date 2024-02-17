@@ -7,7 +7,9 @@ class Sprite():
     
     def __init__(self, pos = (0,0) , size = (128, 64), tex=0, tint = (1,1,1,1) ):
         for arg_name, arg_value in locals().items():
-            if arg_name != 'self': setattr(self, arg_name, arg_value)
+            if arg_name != 'self': 
+                setattr(self, arg_name, arg_value)
+
         self.rot = 0
         
         

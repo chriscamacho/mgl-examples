@@ -4,9 +4,8 @@ from activate import activate
 activate("venv", "python3.12")
 
 """
-based on the geometry shader example, this reduces it to one sprite at
-a time so that individual properties like texture and tint can be set
-per sprite
+based on the geometry shader example, and rich lines example
+show enditable splines
 """
 import math
 
@@ -16,8 +15,10 @@ from config import Config
 
 from pyrr import Matrix44
 from sprite import Sprite
+from spline import Spline
 
 import numpy as np
+from random import uniform as rnd
 
 class Main(Config):
 
@@ -41,30 +42,31 @@ class Main(Config):
 
         width, height = self.ctx.fbo.size
         
-        # create a list of sprites giving them an initial position
+        # create a list of sprites
         self.sprites = []
 
-        a = 0
-        for i in range(num_sprites):
-            a = a + (2*math.pi / num_sprites)
-            s = Sprite()
-            
-            s.pos_ang = a       # added instance variables
+        self.splines = []
+        Spline.load_program(self)
+        
+        for i in range(4):
+            s = Spline()
+            self.splines.append(s)
+            s.tint = (rnd(0.5, 1), rnd(0.5, 1), rnd(0.5, 1), 1)
+            s.startSprite = Sprite((rnd(0,width), rnd(0,height)), (32,32), 0, tint=(1.0,0,0,1))
+            s.endSprite = Sprite((rnd(0,width), rnd(0,height)), (32,32), 0, tint=(0,1.0,0,1))
+            s.cp1Sprite = Sprite((rnd(0,width), rnd(0,height)), (32,32), 0, tint=(1.0,1.0,0,1))
+            s.cp2Sprite = Sprite((rnd(0,width), rnd(0,height)), (32,32), 0, tint=(0,1.0,1.0,1))
+            self.sprites.append(s.startSprite)
+            self.sprites.append(s.endSprite)
+            self.sprites.append(s.cp1Sprite)
+            self.sprites.append(s.cp2Sprite)
+        
+        for s in self.sprites:
             s.dragging = False
             s.offsetx = 0
             s.offsety = 0
-
-            s.tex = i % 4 + 1
-            if s.tex == 0:
-                s.rot = 45
-            if s.tex == 2:
-                s.size = (s.size[0] * 2, s.size[1] * 2)
-                s.tint = (1,0,0,0.6)
-            s. pos = ( width/2 + math.cos(s.pos_ang*3)*width/3,
-                height/2 + math.sin(s.pos_ang)*height/3)
-
-            self.sprites.append(s)
-
+            s.tex = 0
+            s.oldtint = s.tint
         
 # ----------------------------------------------------------------------
 #       main render event
@@ -82,28 +84,24 @@ class Main(Config):
             0, width, height, 0, 1, -1, dtype="f4",  # ensure we create 32 bit value (64 bit is default)
         )
         Sprite.program["projection"].write(projection)
-               
+             
         for s in self.sprites:
-            s.pos_ang = s.pos_ang + 0.002 # keep in step if reset
-            # only move about if never dragged
-            if s.offsetx == 0 and s.offsety == 0:
-                
-                s. pos = ( width/2 + math.cos(s.pos_ang*3)*width/3,
-                            height/2 + math.sin(s.pos_ang)*height/3)
-                
-                if s.tex == 3: 
-                    s.size = (s.size[0], 128 + math.sin(s.pos_ang*2) * 64)
-                    
-                if s.tex == 1:
-                    s.rot = math.cos(s.pos_ang*3)*45
-
             # tint red if mouse is over sprite
             if s.inBounds(self.mousex, self.mousey):
-                s.tint = (1,0,0,s.tint[3])
+                s.tint = (s.oldtint[0]/2,s.oldtint[1]/2,s.oldtint[2]/2,s.tint[3])
             else:
-                s.tint = (1,1,1,s.tint[3])
+                s.tint = s.oldtint
             
             s.render()
+        
+        Spline.program["projection"].write(projection)    
+        for s in self.splines:
+            s.start = s.startSprite.pos
+            s.end = s.endSprite.pos
+            s.cp1 = s.cp1Sprite.pos
+            s.cp2 = s.cp2Sprite.pos
+            s.render(self.ctx)
+            
     
 # ----------------------------------------------------------------------
 #       event handling
@@ -120,29 +118,12 @@ class Main(Config):
         self.mousey = y / (height /fbo_height )
 
     def key_event(self, key, action, modifiers):
-        self.leftSft = False
-        self.leftCtr = False
         if action == self.wnd.keys.ACTION_PRESS:
             if key == self.wnd.keys.SPACE:
-                # reset all to never dragged
-                for s in self.sprites:
-                    s.offsetx = 0
-                    s.offsety = 0
-
-            if key == self.wnd.keys.A:
-                self.leftSft = True
-            if key == self.wnd.keys.Z:
-                self.leftCtr = True
+                pass
     
     def mouse_scroll_event(self, x_offset: float, y_offset: float):
-        for s in self.sprites:
-            if s.inBounds(self.mousex, self.mousey):
-                if self.leftSft and not self.leftCtr:
-                    s.size = (s.size[0] + y_offset, s.size[1]) 
-                if not self.leftSft and self.leftCtr:
-                    s.size = (s.size[0], s.size[1] + y_offset)
-                if not self.leftSft and not self.leftCtr:
-                    s.rot += y_offset
+        pass
 
     # record mouse position
     def mouse_position_event(self, x, y, dx, dy):
