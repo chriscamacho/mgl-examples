@@ -1,12 +1,13 @@
 # mgl-sprites
 
-![screenshot](https://github.com/chriscamacho/mgl-sprites/raw/main/Screenshot_2024-02-15_05-52-49.png "Screenshot")
+![screenshot](https://github.com/chriscamacho/mgl-sprites/raw/main/Screenshot.png "Screenshot")
 
 This example is based on the geometry shader example, this reduces it to
 one sprite at a time so that individual properties like texture and tint
 can be set per sprite.
 
 * each sprite has its own size, tint and texture
+* Sprites can be used to drag start end and control points
 * textures are using a TexutureArray a vertical strip
 * demonstrates mouse dragging
 * a dragged sprite can be rotate and sized with mouse wheel
