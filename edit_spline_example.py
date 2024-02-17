@@ -41,15 +41,21 @@ class Main(Config):
 
         self.splines = []
         Spline.load_program(self)
+        
+        starts = [(43, 672), (596, 400), (64, 388), (580, 654)], \
+                    [(1190, 57), (672, 48), (1186, 229), (679, 242)], \
+                    [(346, 52), (270, 51), (69, 292), (588, 302)], \
+                    [(822, 650), (1202, 643), (1067, 367), (938, 365)],
 
-        for _ in range(4):
+        for i in range(4):
             s = Spline()
             self.splines.append(s)
+            start = starts[i]
             s.tint = (rnd(0.5, 1), rnd(0.5, 1), rnd(0.5, 1), 1)
-            s.startSprite = Sprite((rnd(0,width), rnd(0,height)), (32,32), 0, tint=(1.0,0,0,1))
-            s.endSprite = Sprite((rnd(0,width), rnd(0,height)), (32,32), 0, tint=(0,1.0,0,1))
-            s.cp1Sprite = Sprite((rnd(0,width), rnd(0,height)), (32,32), 0, tint=(1.0,1.0,0,1))
-            s.cp2Sprite = Sprite((rnd(0,width), rnd(0,height)), (32,32), 0, tint=(0,1.0,1.0,1))
+            s.startSprite = Sprite((start[0]), (32,32), 0, tint=(1.0,0,0,1))
+            s.endSprite = Sprite((start[1]), (32,32), 0, tint=(0,1.0,0,1))
+            s.cp1Sprite = Sprite((start[2]), (32,32), 0, tint=(1.0,1.0,0,1))
+            s.cp2Sprite = Sprite((start[3]), (32,32), 0, tint=(0,1.0,1.0,1))
             self.sprites.append(s.startSprite)
             self.sprites.append(s.endSprite)
             self.sprites.append(s.cp1Sprite)
@@ -115,7 +121,8 @@ class Main(Config):
     def key_event(self, key, action, modifiers):
         if action == self.wnd.keys.ACTION_PRESS:
             if key == self.wnd.keys.SPACE:
-                pass
+                for s in self.splines:
+                    s.print()
 
     def mouse_scroll_event(self, x_offset: float, y_offset: float):
         pass

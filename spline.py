@@ -20,6 +20,13 @@ class Spline():
         self.generate_spline()
 
         Spline.vao.render(mode=LINE_STRIP_ADJACENCY)
+        
+    # will only work if sprites being used with spline 
+    def print(self):
+        print(f"[{tuple(map(round, self.startSprite.pos))}, " \
+              f"{tuple(map(round, self.endSprite.pos))}, " \
+              f"{tuple(map(round, self.cp1Sprite.pos))}, " \
+              f"{tuple(map(round, self.cp2Sprite.pos))}],")
 
     def generate_spline(self):
         points = np.array([
