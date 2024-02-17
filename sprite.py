@@ -1,18 +1,17 @@
 from array import array
 from moderngl import POINTS
 from math import radians, cos, sin
-from pyrr import Matrix44, Vector3
 
 class Sprite():
-    
+
     def __init__(self, pos = (0,0) , size = (128, 64), tex=0, tint = (1,1,1,1) ):
         for arg_name, arg_value in locals().items():
             if arg_name != 'self': 
                 setattr(self, arg_name, arg_value)
 
         self.rot = 0
-        
-        
+
+
     def render(self):
         self.sprite_data.write(array("f", [self.pos[0], self.pos[1], 
                                             self.size[0], self.size[1], self.rot ]))
@@ -20,13 +19,11 @@ class Sprite():
         self.program["in_tint"] = self.tint
 
         Sprite.vao.render(mode=POINTS, vertices=1)
-        
+
     def load_textures(main, textures):
-        
         Sprite.program = main.load_program("sprite.glsl")
-        
+
         Sprite.texture = textures
-        
         Sprite.texture.use(location = 0)
         Sprite.program['texture0'].value = 0
         
@@ -68,9 +65,6 @@ class Sprite():
             x < self.pos[0] + self.size[0]/2 and \
             y > self.pos[1] - self.size[1]/2 and \
             y < self.pos[1] + self.size[1]/2:
-                
-            return True
-        else:
-            return False
 
-  
+            return True
+        return False
