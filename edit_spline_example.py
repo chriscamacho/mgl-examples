@@ -8,7 +8,6 @@ based on the geometry shader example, and rich lines example
 show enditable splines
 """
 import moderngl
-from moderngl_window.context.base.window import MouseButtons
 from config import Config
 
 from pyrr import Matrix44
@@ -17,28 +16,24 @@ from spline import Spline
 
 from random import uniform as rnd
 
-class Main(Config):
+from mouse_handler import MouseHandler
+
+class Main(MouseHandler, Config):
 
 # ----------------------------------------------------------------------
 #       initialisation
 # ----------------------------------------------------------------------
     def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
-        self.mousex = 0
-        self.mousey = 0
-        self.mouse_pressed = False
+        super(Config, self).__init__(**kwargs)
+        MouseHandler.__init__(self)
 
         textures = self.load_texture_array(
             'atlas.png', layers=5, mipmap=True, anisotrpy=8.0)
 
         Sprite.load_textures(self, textures)
 
-        width, height = self.ctx.fbo.size
-
         # create a list of sprites
         self.sprites = []
-
         self.splines = []
         Spline.load_program(self)
         
@@ -81,22 +76,24 @@ class Main(Config):
         # update shaders projection matrix
         projection = Matrix44.orthogonal_projection(
             # left, right, top, bottom, near, far
-            0, width, height, 0, 1, -1, dtype="f4",
+            self.screen_offset_x, width + self.screen_offset_x, 
+            height + self.screen_offset_y, self.screen_offset_y, 
+            1, -1, dtype="f4",
             # ensure we create 32 bit value (64 bit is default)
         )
         Sprite.program["projection"].write(projection)
 
         for s in self.sprites:
-            # tint red if mouse is over sprite
+            # dim tint if mouse is over sprite
             if s.inBounds(self.mousex, self.mousey):
                 s.tint = (s.oldtint[0]/2,s.oldtint[1]/2,s.oldtint[2]/2,s.tint[3])
             else:
                 s.tint = s.oldtint
-
             s.render()
 
         Spline.program["projection"].write(projection)
         for s in self.splines:
+            # update spline points with its sprite
             s.start = s.startSprite.pos
             s.end = s.endSprite.pos
             s.cp1 = s.cp1Sprite.pos
@@ -107,57 +104,17 @@ class Main(Config):
 # ----------------------------------------------------------------------
 #       event handling
 # ----------------------------------------------------------------------
-    # update window size for scale_mouse
-    def resize(self, width, height):
-        self.window_size = (width, height)
-
-    # fbo never seems to resize, even when window resizes
-    def scale_mouse(self, x, y):
-        width, height = self.window_size
-        fbo_width, fbo_height = self.ctx.fbo.size
-        self.mousex = x / (width / fbo_width )
-        self.mousey = y / (height /fbo_height )
-
     def key_event(self, key, action, modifiers):
         if action == self.wnd.keys.ACTION_PRESS:
             if key == self.wnd.keys.SPACE:
                 for s in self.splines:
                     s.print()
 
-    def mouse_scroll_event(self, x_offset: float, y_offset: float):
-        pass
+    # update window size for scale_mouse
+    def resize(self, width, height):
+        self.window_size = (width, height)
 
-    # record mouse position
-    def mouse_position_event(self, x, y, dx, dy):
-        self.scale_mouse(x,y)
-
-    # move any draggies
-    def mouse_drag_event(self, x, y, dx, dy):
-        self.scale_mouse(x,y)
-        for s in self.sprites:
-            if s.dragging:
-                s.pos = (self.mousex + s.offsetx, self.mousey + s.offsety)
-
-    # start dragging any under mouse
-    def mouse_press_event(self, x, y, button):
-        if button == MouseButtons.left:
-            if self.mouse_pressed:
-                return
-            for s in self.sprites:
-                if s.inBounds(self.mousex, self.mousey):
-                    s.dragging = True
-                    s.offsetx = s.pos[0] - self.mousex
-                    s.offsety = s.pos[1] - self.mousey
-                else:
-                    s.dragging = False
-            self.mouse_pressed = True
-
-    # stop dragging
-    def mouse_release_event(self, x: int, y: int, button: int):
-        if button == MouseButtons.left:
-            for s in self.sprites:
-                s.dragging = False
-            self.mouse_pressed = False
 
 if __name__ == "__main__":
     Main.run()
+    
