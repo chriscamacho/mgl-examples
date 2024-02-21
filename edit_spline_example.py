@@ -84,7 +84,8 @@ class Main(MouseHandler, Config):
         self.ctx.clear(0.1,0.2,0.4)
         self.ctx.enable(moderngl.BLEND)
 
-        width, height = self.ctx.fbo.size
+        #width, height = self.ctx.fbo.size
+        width, height = self.window_size
 
         # Calculate zoom and offset matrices
         zoom_matrix = np.array([
@@ -138,8 +139,9 @@ class Main(MouseHandler, Config):
             s.cp2 = s.cp2Sprite.pos
             s.render(self.ctx)
 
-        self.writer.text = f"{self.screen_offset_x:.2f}, {self.screen_offset_y:.2f}"
+        self.writer.text = f"mouse {self.mousex:.2f}, {self.mousey:.2f}"
         self.writer.draw((20, 20), size=20)
+
         Sprite.texture.use(location = 0) # reset for sprites
         
 # ----------------------------------------------------------------------

@@ -24,6 +24,8 @@ class MouseHandler():
         
         self.mousex = mouse_frame_coords[0] - self.screen_offset_x*width/2
         self.mousey = mouse_frame_coords[1] - self.screen_offset_y*height/2
+        
+
 
 
     def mouse_scroll_event(self, x_offset: float, y_offset: float):
