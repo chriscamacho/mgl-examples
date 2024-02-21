@@ -74,17 +74,11 @@ class Main(MouseHandler, Config):
         self.mouseSprite.tex = 0
         
         self.writer = TextWriter2D()
-        
-        
-# ----------------------------------------------------------------------
-#       main render event
-# ----------------------------------------------------------------------
 
-    def render(self, time, frame_time):
-        self.ctx.clear(0.1,0.2,0.4)
-        self.ctx.enable(moderngl.BLEND)
-
-        #width, height = self.ctx.fbo.size
+# ----------------------------------------------------------------------
+#   Prespective Matrix, combines zoom, panning & perspective 
+# ----------------------------------------------------------------------
+    def calc_perspective(self):
         width, height = self.window_size
 
         # Calculate zoom and offset matrices
@@ -99,7 +93,7 @@ class Main(MouseHandler, Config):
             [1, 0, 0, 0],
             [0, 1, 0, 0],
             [0, 0, 1, 0],
-            [self.screen_offset_x, self.screen_offset_y, 0, 1]
+            [self.screen_offset[0], self.screen_offset[1], 0, 1]
         ], dtype=np.float32)
 
         # Calculate orthogonal projection matrix
@@ -117,17 +111,28 @@ class Main(MouseHandler, Config):
         transformation_matrix = np.matmul(offset_matrix, zoom_matrix)
         self.projection = np.matmul(projection_matrix, transformation_matrix)
 
+        
+# ----------------------------------------------------------------------
+#       main render event
+# ----------------------------------------------------------------------
+
+    def render(self, time, frame_time):
+        self.ctx.clear(0.1,0.2,0.4)
+        self.ctx.enable(moderngl.BLEND)
+
+        self.calc_perspective()
+
         Sprite.program["projection"].write(self.projection)
 
         for s in self.sprites:
             # dim tint if mouse is over sprite
-            if s.inBounds(self.mousex, self.mousey):
+            if s.inBounds(self.mouse_pos[0], self.mouse_pos[1]):
                 s.tint = (s.oldtint[0]/2,s.oldtint[1]/2,s.oldtint[2]/2,s.tint[3])
             else:
                 s.tint = s.oldtint
             s.render()
             
-        self.mouseSprite.pos = (self.mousex + 16, self.mousey - 16)
+        self.mouseSprite.pos = (self.mouse_pos[0] + 16, self.mouse_pos[1] - 16)
         self.mouseSprite.render()
 
         Spline.program["projection"].write(self.projection)
@@ -139,8 +144,11 @@ class Main(MouseHandler, Config):
             s.cp2 = s.cp2Sprite.pos
             s.render(self.ctx)
 
-        self.writer.text = f"mouse {self.mousex:.2f}, {self.mousey:.2f}"
+        self.writer.text = f"mouse {self.mouse_pos[0]:.2f}, {self.mouse_pos[1]:.2f}"
         self.writer.draw((20, 20), size=20)
+        
+        self.writer.text = f"zoom {self.zoom_level:.2f}"
+        self.writer.draw((20, 40), size=20)
 
         Sprite.texture.use(location = 0) # reset for sprites
         
@@ -153,9 +161,6 @@ class Main(MouseHandler, Config):
                 for s in self.splines:
                     s.print()
 
-    # update window size for scale_mouse
-    def resize(self, width, height):
-        self.window_size = (width, height)
 
 
 if __name__ == "__main__":
