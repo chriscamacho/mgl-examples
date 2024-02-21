@@ -33,7 +33,7 @@ class Main(Config):
         self.z_down = False
 
         textures = self.load_texture_array(
-            'atlas.png', layers=5, mipmap=True, anisotrpy=8.0)
+            'atlas.png', layers=6, mipmap=True, anisotrpy=8.0)
 
         Sprite.load_textures(self, textures)
 
@@ -52,7 +52,7 @@ class Main(Config):
             s.offsetx = 0
             s.offsety = 0
 
-            s.tex = i % 4 + 1
+            s.tex = i % 4 + 2
             if s.tex == 0:
                 s.rot = 45
             if s.tex == 2:

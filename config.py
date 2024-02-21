@@ -10,5 +10,5 @@ class Config(mglw.WindowConfig):
     aspect_ratio = 16 / 9
     resizable = True
     vsync = True
-
     resource_dir = os.path.normpath(os.path.join(__file__, '../data'))
+    cursor = False

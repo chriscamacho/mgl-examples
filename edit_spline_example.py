@@ -8,6 +8,7 @@ based on the geometry shader example, and rich lines example
 show enditable splines
 """
 import moderngl
+from moderngl_window.text.bitmapped import TextWriter2D
 from config import Config
 
 from pyrr import Matrix44
@@ -18,17 +19,21 @@ from random import uniform as rnd
 
 from mouse_handler import MouseHandler
 
+import numpy as np
+
+
 class Main(MouseHandler, Config):
 
 # ----------------------------------------------------------------------
 #       initialisation
 # ----------------------------------------------------------------------
+    
     def __init__(self, **kwargs):
         super(Config, self).__init__(**kwargs)
         MouseHandler.__init__(self)
 
         textures = self.load_texture_array(
-            'atlas.png', layers=5, mipmap=True, anisotrpy=8.0)
+            'atlas.png', layers=6, mipmap=True, anisotrpy=8.0)
 
         Sprite.load_textures(self, textures)
 
@@ -60,9 +65,17 @@ class Main(MouseHandler, Config):
             s.dragging = False
             s.offsetx = 0
             s.offsety = 0
-            s.tex = 0
+            s.tex = 1
             s.oldtint = s.tint
-
+            
+        self.mouseSprite = Sprite()
+        self.mouseSprite.size=(32,32)
+        self.mouseSprite.tint = 1, 0.2, 0.4, 1
+        self.mouseSprite.tex = 0
+        
+        self.writer = TextWriter2D()
+        
+        
 # ----------------------------------------------------------------------
 #       main render event
 # ----------------------------------------------------------------------
@@ -73,15 +86,37 @@ class Main(MouseHandler, Config):
 
         width, height = self.ctx.fbo.size
 
-        # update shaders projection matrix
-        projection = Matrix44.orthogonal_projection(
-            # left, right, top, bottom, near, far
-            self.screen_offset_x, width + self.screen_offset_x, 
-            height + self.screen_offset_y, self.screen_offset_y, 
-            1, -1, dtype="f4",
-            # ensure we create 32 bit value (64 bit is default)
-        )
-        Sprite.program["projection"].write(projection)
+        # Calculate zoom and offset matrices
+        zoom_matrix = np.array([
+            [1/self.zoom_level, 0, 0, 0],
+            [0, 1/self.zoom_level, 0, 0],
+            [0, 0, 1, 0],
+            [0, 0, 0, 1]
+        ], dtype=np.float32)
+
+        offset_matrix = np.array([
+            [1, 0, 0, 0],
+            [0, 1, 0, 0],
+            [0, 0, 1, 0],
+            [self.screen_offset_x, self.screen_offset_y, 0, 1]
+        ], dtype=np.float32)
+
+        # Calculate orthogonal projection matrix
+        left = -width / 2
+        right = width / 2
+        bottom = -height / 2
+        top = height / 2
+        projection_matrix = np.array([
+            [2/(right-left), 0,              0, -(right+left)/(right-left)],
+            [0,              2/(top-bottom), 0, -(top+bottom)/(top-bottom)],
+            [0,              0,             -2, 0],
+            [0,              0,              0, 1]
+        ], dtype=np.float32)
+
+        transformation_matrix = np.matmul(offset_matrix, zoom_matrix)
+        self.projection = np.matmul(projection_matrix, transformation_matrix)
+
+        Sprite.program["projection"].write(self.projection)
 
         for s in self.sprites:
             # dim tint if mouse is over sprite
@@ -90,8 +125,11 @@ class Main(MouseHandler, Config):
             else:
                 s.tint = s.oldtint
             s.render()
+            
+        self.mouseSprite.pos = (self.mousex + 16, self.mousey - 16)
+        self.mouseSprite.render()
 
-        Spline.program["projection"].write(projection)
+        Spline.program["projection"].write(self.projection)
         for s in self.splines:
             # update spline points with its sprite
             s.start = s.startSprite.pos
@@ -100,9 +138,12 @@ class Main(MouseHandler, Config):
             s.cp2 = s.cp2Sprite.pos
             s.render(self.ctx)
 
-
+        self.writer.text = f"{self.screen_offset_x:.2f}, {self.screen_offset_y:.2f}"
+        self.writer.draw((20, 20), size=20)
+        Sprite.texture.use(location = 0) # reset for sprites
+        
 # ----------------------------------------------------------------------
-#       event handling
+#       event handling (mouse events in mouse_handler)
 # ----------------------------------------------------------------------
     def key_event(self, key, action, modifiers):
         if action == self.wnd.keys.ACTION_PRESS:

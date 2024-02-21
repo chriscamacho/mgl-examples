@@ -1,26 +1,34 @@
 
 from moderngl_window.context.base.window import MouseButtons
+import numpy as np
 
 class MouseHandler():
     def __init__(self):
-        self.screen_offset_x = 0
-        self.screen_offset_y = 0
+        self.screen_offset_x = -(self.window_size[0]/self.window_size[0])
+        self.screen_offset_y = -(self.window_size[1]/self.window_size[1])
         self.mousex = 0
         self.mousey = 0
         self.mouse_left_down = False
         self.mouse_middle_down = False
         self.mouse_right_down = False
+        self.zoom_level = 1
 
     def scale_mouse(self, x, y):
         width, height = self.window_size
         fbo_width, fbo_height = self.ctx.fbo.size
 
-        self.mousex = (x / (width / fbo_width)) + self.screen_offset_x
-        self.mousey = (y / (height / fbo_height)) + self.screen_offset_y
+        ortho_matrix_inv = np.linalg.inv(self.projection)
+        
+        mouse_window_coords = np.array([x/(width/2)-1, -y/(height/2)+1, 0, 1])
+        mouse_frame_coords = np.matmul(ortho_matrix_inv, mouse_window_coords)
+        
+        self.mousex = mouse_frame_coords[0] - self.screen_offset_x*width/2
+        self.mousey = mouse_frame_coords[1] - self.screen_offset_y*height/2
+
 
     def mouse_scroll_event(self, x_offset: float, y_offset: float):
-        pass
-
+        self.zoom_level += (y_offset / 10.0)
+        
     def mouse_position_event(self, x, y, dx, dy):
         self.scale_mouse(x, y)
 
@@ -31,8 +39,8 @@ class MouseHandler():
                 if s.dragging:
                     s.pos = (self.mousex + s.offsetx, self.mousey + s.offsety)
         if self.mouse_middle_down:
-            self.screen_offset_x = self.screen_offset_x - dx
-            self.screen_offset_y = self.screen_offset_y - dy
+            self.screen_offset_x = self.screen_offset_x + (dx/self.window_size[0])*2
+            self.screen_offset_y = self.screen_offset_y - (dy/self.window_size[1])*2
 
     def mouse_press_event(self, x, y, button):
         if button == MouseButtons.left:
