@@ -13,7 +13,7 @@ import math
 import moderngl
 from moderngl_window.context.base.window import MouseButtons
 from config import Config
-
+import numpy as np
 from pyrr import Matrix44
 from sprite import Sprite
 
@@ -24,7 +24,9 @@ class Main(Config):
 # ----------------------------------------------------------------------
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-
+        
+        self.cursor = True
+        
         num_sprites = 16
         self.mousex = 0
         self.mousey = 0
@@ -62,8 +64,12 @@ class Main(Config):
                 height/2 + math.sin(s.pos_ang)*height/3)
 
             self.sprites.append(s)
-
-
+            
+        self.mouse_sprite = Sprite()
+        self.mouse_sprite.size=(32,32)
+        self.mouse_sprite.tint = 1, 0.2, 0.4, 1
+        self.mouse_sprite.tex = 0
+        
 # ----------------------------------------------------------------------
 #       main render event
 # ----------------------------------------------------------------------
@@ -79,6 +85,17 @@ class Main(Config):
             # left, right, top, bottom, near, far
             0, width, height, 0, 1, -1, dtype="f4",  # ensure we create 32 bit value (64 bit is default)
         )
+        left = -width / 2
+        right = width / 2
+        bottom = -height / 2
+        top = height / 2        
+        projection = np.array([
+            [2/(right-left), 0,              0, -(right+left)/(right-left)],
+            [0,              2/(top-bottom), 0, -(top+bottom)/(top-bottom)],
+            [0,              0,             -2, 0],
+            [0,              0,              0, 1]
+        ], dtype=np.float32)
+        
         Sprite.program["projection"].write(projection)
 
         for s in self.sprites:
@@ -86,8 +103,8 @@ class Main(Config):
             # only move about if never dragged
             if s.offsetx == 0 and s.offsety == 0:
 
-                s. pos = ( width/2 + math.cos(s.pos_ang*3)*width/3,
-                            height/2 + math.sin(s.pos_ang)*height/3)
+                s. pos = ( math.cos(s.pos_ang*3)*width/3,
+                            math.sin(s.pos_ang)*height/3)
 
                 if s.tex == 3:
                     s.size = (s.size[0], 128 + math.sin(s.pos_ang*2) * 64)
@@ -102,7 +119,9 @@ class Main(Config):
                 s.tint = (1,1,1,s.tint[3])
 
             s.render()
-
+        self.mouse_sprite.pos = (self.mousex + 16, self.mousey - 16)
+        self.mouse_sprite.render()
+        
 # ----------------------------------------------------------------------
 #       event handling
 # ----------------------------------------------------------------------
@@ -114,8 +133,8 @@ class Main(Config):
     def scale_mouse(self, x, y):
         width, height = self.window_size
         fbo_width, fbo_height = self.ctx.fbo.size
-        self.mousex = x / (width / fbo_width )
-        self.mousey = y / (height /fbo_height )
+        self.mousex = x / (width / fbo_width ) - ((width/2)/(width / fbo_width ))
+        self.mousey = -y / (height /fbo_height ) + ((height/2)/(height /fbo_height))
 
     def key_event(self, key, action, modifiers):
         self.a_down = False

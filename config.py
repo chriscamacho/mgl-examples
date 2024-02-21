@@ -11,3 +11,5 @@ class Config(mglw.WindowConfig):
     vsync = True
     resource_dir = os.path.normpath(os.path.join(__file__, '../data'))
     cursor = False
+
+

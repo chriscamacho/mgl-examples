@@ -11,7 +11,6 @@ import moderngl
 from moderngl_window.text.bitmapped import TextWriter2D
 from config import Config
 
-from pyrr import Matrix44
 from sprite import Sprite
 from spline import Spline
 
@@ -32,6 +31,8 @@ class Main(MouseHandler, Config):
         super(Config, self).__init__(**kwargs)
         MouseHandler.__init__(self)
 
+        self.projection = None
+        
         textures = self.load_texture_array(
             'atlas.png', layers=6, mipmap=True, anisotrpy=8.0)
 
@@ -68,10 +69,10 @@ class Main(MouseHandler, Config):
             s.tex = 1
             s.oldtint = s.tint
             
-        self.mouseSprite = Sprite()
-        self.mouseSprite.size=(32,32)
-        self.mouseSprite.tint = 1, 0.2, 0.4, 1
-        self.mouseSprite.tex = 0
+        self.mouse_sprite = Sprite()
+        self.mouse_sprite.size=(32,32)
+        self.mouse_sprite.tint = 1, 0.2, 0.4, 1
+        self.mouse_sprite.tex = 0
         
         self.writer = TextWriter2D()
 
@@ -132,8 +133,8 @@ class Main(MouseHandler, Config):
                 s.tint = s.oldtint
             s.render()
             
-        self.mouseSprite.pos = (self.mouse_pos[0] + 16, self.mouse_pos[1] - 16)
-        self.mouseSprite.render()
+        self.mouse_sprite.pos = (self.mouse_pos[0] + 16, self.mouse_pos[1] - 16)
+        self.mouse_sprite.render()
 
         Spline.program["projection"].write(self.projection)
         for s in self.splines:
